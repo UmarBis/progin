@@ -1,3 +1,18 @@
+Шаг 2: Настройка основного приложения (Catty)
+cd ~
+git clone -b lab1 https://github.com/ТВОЙ_ЛОГИН/catty-reminders-app.git
+cd ~/catty-reminders-app
+
+python3 -m venv venv
+./venv/bin/pip install -r requirements.txt
+
+sudo touch /etc/catty-app-env
+sudo chmod 666 /etc/catty-app-env
+echo "DEPLOY_REF=initial" > /etc/catty-app-env
+
+sudo nano /etc/systemd/system/catty.service
+
+
 [Unit]
 Description=Catty Reminders Application
 After=network.target

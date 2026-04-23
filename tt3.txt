@@ -218,3 +218,18 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now webhook-handler
 sudo systemctl status webhook-handler
 
+sudo systemctl status webhook-handler
+× webhook-handler.service - Webhook Handler
+     Loaded: loaded (/etc/systemd/system/webhook-handler.service; enabled; pres>
+     Active: failed (Result: exit-code) since Fri 2026-04-24 00:38:34 +03; 4s a>
+   Duration: 1ms
+    Process: 13246 ExecStart=/home/umarbis/webhook-handler/venv/bin/python logi>
+   Main PID: 13246 (code=exited, status=217/USER)
+        CPU: 893us
+
+Apr 24 00:38:34 biss systemd[1]: webhook-handler.service: Scheduled restart job>
+Apr 24 00:38:34 biss systemd[1]: webhook-handler.service: Start request repeate>
+Apr 24 00:38:34 biss systemd[1]: webhook-handler.service: Failed with result 'e>
+Apr 24 00:38:34 biss systemd[1]: Failed to start webhook-handler.service - Webh>
+lines 1-12/12 (END)
+

@@ -89,3 +89,10 @@ Apr 23 23:31:50 biss systemd[1]: frpc.service: Main process exited, code=exited>
 Apr 23 23:31:50 biss systemd[1]: frpc.service: Failed with result 'exit-code'.
 Apr 23 23:31:55 biss systemd[1]: Stopped frpc.service - Frp Client Service.
 lines 1-14/14 (END)
+
+sudo systemctl stop frpc
+sudo systemctl disable frpc
+sudo rm /usr/bin/frpc /usr/bin/frps
+sudo rm -rf /etc/frp
+sudo rm -f /etc/systemd/system/frpc.service
+sudo systemctl daemon-reload

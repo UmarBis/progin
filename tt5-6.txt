@@ -44,3 +44,11 @@ remote: error: GH001: Large files detected. You may want to try Git Large File S
 To https://github.com/UmarBis/catty-reminders-app.git
  ! [remote rejected] lab1 -> lab1 (pre-receive hook declined)
 error: failed to push some refs to 'https://github.com/UmarBis/catty-reminders-app.git'
+
+
+cd ~/catty-reminders-app
+echo "venv/" >> .gitignore
+git rm -r --cached venv
+git add .gitignore
+git commit -m "Remove venv from git"
+git push origin lab1

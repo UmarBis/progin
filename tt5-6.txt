@@ -53,17 +53,18 @@ git add .gitignore
 git commit -m "Remove venv from git"
 git push origin lab1
 
+
 umarbis@biss:~/catty-reminders-app$ git push origin lab1
 Username for 'https://github.com': UmarBis
 Password for 'https://UmarBis@github.com': 
-Enumerating objects: 3605, done.
-Counting objects: 100% (3605/3605), done.
+Enumerating objects: 3611, done.
+Counting objects: 100% (3611/3611), done.
 Delta compression using up to 4 threads
-Compressing objects: 100% (3518/3518), done.
-Writing objects: 100% (3600/3600), 62.86 MiB | 3.19 MiB/s, done.
-Total 3600 (delta 405), reused 0 (delta 0), pack-reused 0
-remote: Resolving deltas: 100% (405/405), completed with 4 local objects.
-remote: error: Trace: 6431c4236d51ee590fef42e957ed767a7d5dbd95960932686abb57b6708a5f04
+Compressing objects: 100% (3523/3523), done.
+Writing objects: 100% (3606/3606), 62.86 MiB | 5.87 MiB/s, done.
+Total 3606 (delta 409), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (409/409), completed with 4 local objects.
+remote: error: Trace: 231354555e4ffa999a76b9c3ed8897f174ed2d3b0e472d3a4333dc56a114a97f
 remote: error: See https://gh.io/lfs for more information.
 remote: error: File venv/lib/python3.12/site-packages/playwright/driver/node is 115.55 MB; this exceeds GitHub's file size limit of 100.00 MB
 remote: error: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.

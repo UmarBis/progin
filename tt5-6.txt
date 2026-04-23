@@ -26,3 +26,21 @@ curl -X POST http://webhook.baranova.course.prafdin.ru \
   -H "Content-Type: application/json" \
   -H "X-GitHub-Event: push" \
   -d '{"after":"test"}'
+
+umarbis@biss:~/catty-reminders-app$ git push origin lab1
+Username for 'https://github.com': UmarBis
+Password for 'https://UmarBis@github.com': 
+Enumerating objects: 3602, done.
+Counting objects: 100% (3602/3602), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3516/3516), done.
+Writing objects: 100% (3597/3597), 62.86 MiB | 6.24 MiB/s, done.
+Total 3597 (delta 403), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (403/403), completed with 4 local objects.
+remote: error: Trace: d772cc3ced9e72735d24ce45a627d8f8c5609f05f24cc5b2f997c93ba53bb6aa
+remote: error: See https://gh.io/lfs for more information.
+remote: error: File venv/lib/python3.12/site-packages/playwright/driver/node is 115.55 MB; this exceeds GitHub's file size limit of 100.00 MB
+remote: error: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.
+To https://github.com/UmarBis/catty-reminders-app.git
+ ! [remote rejected] lab1 -> lab1 (pre-receive hook declined)
+error: failed to push some refs to 'https://github.com/UmarBis/catty-reminders-app.git'

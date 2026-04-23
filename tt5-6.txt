@@ -13,3 +13,5 @@ User umarbis may run the following commands on biss:
     (ALL : ALL) ALL
     (ALL) NOPASSWD: /usr/bin/systemctl restart catty, /usr/bin/tee
         /etc/catty-app-env
+
+curl -X POST http://webhook.baranova.course.prafdin.ru -H "X-GitHub-Event: push" -d '{"after":"test"}'

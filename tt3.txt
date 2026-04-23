@@ -16,19 +16,19 @@ sudo nano /etc/frp/frpc.toml
 serverAddr = "course.prafdin.ru"
 serverPort = 7000
 auth.method = "token"
-auth.token = "tokentoken" # Уточни актуальный токен у препода
+auth.token = "devops" 
 
 [[proxies]]
-name = "hook-baranova"
+name = "hook-bisultanov"
 type = "http"
 localPort = 8080
-customDomains = ["webhook.baranova.course.prafdin.ru"]
+customDomains = ["webhook.bisultanov.course.prafdin.ru"]
 
 [[proxies]]
-name = "app-baranova"
+name = "app-bisultanov"
 type = "http"
 localPort = 8181
-customDomains = ["app.baranova.course.prafdin.ru"]
+customDomains = ["app.bisultanov.course.prafdin.ru"]
 
 
 

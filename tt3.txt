@@ -96,3 +96,7 @@ sudo rm /usr/bin/frpc /usr/bin/frps
 sudo rm -rf /etc/frp
 sudo rm -f /etc/systemd/system/frpc.service
 sudo systemctl daemon-reload
+
+# Проверь, скачивается ли файл полностью
+wget https://github.com/fatedier/frp/releases/download/v0.68.1/frp_0.68.1_linux_amd64.tar.gz
+ls -lh frp_0.68.1_linux_amd64.tar.gz

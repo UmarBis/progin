@@ -233,3 +233,15 @@ Apr 24 00:38:34 biss systemd[1]: webhook-handler.service: Failed with result 'e>
 Apr 24 00:38:34 biss systemd[1]: Failed to start webhook-handler.service - Webh>
 lines 1-12/12 (END)
 
+umarbis@biss:~/webhook-handler$ ls -la /home/umarbis/webhook-handler/venv/bin/python
+lrwxrwxrwx 1 umarbis umarbis 7 Apr 24 00:33 /home/umarbis/webhook-handler/venv/bin/python -> python3
+umarbis@biss:~/webhook-handler$ ls -la /home/umarbis/webhook-handler/logic.py
+-rw-rw-r-- 1 umarbis umarbis 1407 Apr 24 00:37 /home/umarbis/webhook-handler/logic.py
+umarbis@biss:~/webhook-handler$ ls -la /home/umarbis/webhook-handler
+total 16
+drwxrwxr-x  3 umarbis umarbis 4096 Apr 24 00:37 .
+drwxr-x--- 21 umarbis umarbis 4096 Apr 24 00:33 ..
+-rw-rw-r--  1 umarbis umarbis 1407 Apr 24 00:37 logic.py
+drwxrwxr-x  5 umarbis umarbis 4096 Apr 24 00:33 venv
+
+

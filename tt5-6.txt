@@ -15,3 +15,9 @@ User umarbis may run the following commands on biss:
         /etc/catty-app-env
 
 curl -X POST http://webhook.baranova.course.prafdin.ru -H "X-GitHub-Event: push" -d '{"after":"test"}'
+umarbis@biss:~/catty-reminders-app$ curl -X POST http://webhook.bisultanov.course.prafdin.ru -H "X-GitHub-Event: push" -d '{"after":"test"}'
+<!doctype html>
+<html lang=en>
+<title>415 Unsupported Media Type</title>
+<h1>Unsupported Media Type</h1>
+<p>Did not attempt to load JSON data because the request Content-Type was not &#39;application/json&#39;.</p>

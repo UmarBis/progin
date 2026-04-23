@@ -245,35 +245,52 @@ drwxr-x--- 21 umarbis umarbis 4096 Apr 24 00:33 ..
 drwxrwxr-x  5 umarbis umarbis 4096 Apr 24 00:33 venv
 
 
+umarbis@biss:~/webhook-handler$ sudo systemctl status webhook-handler
+× webhook-handler.service - Webhook Handler
+     Loaded: loaded (/etc/systemd/system/webhook-handler.service; enabled; pres>
+     Active: failed (Result: exit-code) since Fri 2026-04-24 00:55:38 +03; 9s a>
+   Duration: 182ms
+    Process: 13945 ExecStart=/home/umarbis/webhook-handler/venv/bin/python logi>
+   Main PID: 13945 (code=exited, status=1/FAILURE)
+        CPU: 181ms
+
+Apr 24 00:55:38 biss systemd[1]: webhook-handler.service: Scheduled restart job>
+Apr 24 00:55:38 biss systemd[1]: webhook-handler.service: Start request repeate>
+Apr 24 00:55:38 biss systemd[1]: webhook-handler.service: Failed with result 'e>
+Apr 24 00:55:38 biss systemd[1]: Failed to start webhook-handler.service - Webh>
+lines 1-12/12 (END)
+
 umarbis@biss:~/webhook-handler$ sudo journalctl -u webhook-handler -n 30 --no-pager 
-Apr 24 00:43:16 biss python[13784]:   File "/usr/lib/python3.12/logging/__init__.py", line 1231, in __init__
-Apr 24 00:43:16 biss python[13784]:     StreamHandler.__init__(self, self._open())
-Apr 24 00:43:16 biss python[13784]:                                  ^^^^^^^^^^^^
-Apr 24 00:43:16 biss python[13784]:   File "/usr/lib/python3.12/logging/__init__.py", line 1263, in _open
-Apr 24 00:43:16 biss python[13784]:     return open_func(self.baseFilename, self.mode,
-Apr 24 00:43:16 biss python[13784]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Apr 24 00:43:16 biss python[13784]: FileNotFoundError: [Errno 2] No such file or directory: '/home/password_123/deploy.log'
-Apr 24 00:43:16 biss systemd[1]: webhook-handler.service: Main process exited, code=exited, status=1/FAILURE
-Apr 24 00:43:16 biss systemd[1]: webhook-handler.service: Failed with result 'exit-code'.
-Apr 24 00:43:16 biss systemd[1]: webhook-handler.service: Scheduled restart job, restart counter is at 4.
-Apr 24 00:43:16 biss systemd[1]: Started webhook-handler.service - Webhook Handler.
-Apr 24 00:43:16 biss python[13786]: Traceback (most recent call last):
-Apr 24 00:43:16 biss python[13786]:   File "/home/umarbis/webhook-handler/logic.py", line 13, in <module>
-Apr 24 00:43:16 biss python[13786]:     logging.basicConfig(filename="/home/password_123/deploy.log", level=logging.INFO)
-Apr 24 00:43:16 biss python[13786]:   File "/usr/lib/python3.12/logging/__init__.py", line 2118, in basicConfig
-Apr 24 00:43:16 biss python[13786]:     h = FileHandler(filename, mode,
-Apr 24 00:43:16 biss python[13786]:         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Apr 24 00:43:16 biss python[13786]:   File "/usr/lib/python3.12/logging/__init__.py", line 1231, in __init__
-Apr 24 00:43:16 biss python[13786]:     StreamHandler.__init__(self, self._open())
-Apr 24 00:43:16 biss python[13786]:                                  ^^^^^^^^^^^^
-Apr 24 00:43:16 biss python[13786]:   File "/usr/lib/python3.12/logging/__init__.py", line 1263, in _open
-Apr 24 00:43:16 biss python[13786]:     return open_func(self.baseFilename, self.mode,
-Apr 24 00:43:16 biss python[13786]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Apr 24 00:43:16 biss python[13786]: FileNotFoundError: [Errno 2] No such file or directory: '/home/password_123/deploy.log'
-Apr 24 00:43:16 biss systemd[1]: webhook-handler.service: Main process exited, code=exited, status=1/FAILURE
-Apr 24 00:43:16 biss systemd[1]: webhook-handler.service: Failed with result 'exit-code'.
-Apr 24 00:43:17 biss systemd[1]: webhook-handler.service: Scheduled restart job, restart counter is at 5.
-Apr 24 00:43:17 biss systemd[1]: webhook-handler.service: Start request repeated too quickly.
-Apr 24 00:43:17 biss systemd[1]: webhook-handler.service: Failed with result 'exit-code'.
-Apr 24 00:43:17 biss systemd[1]: Failed to start webhook-handler.service - Webhook Handler.
+Apr 24 00:55:36 biss systemd[1]: webhook-handler.service: Main process exited, code=exited, status=1/FAILURE
+Apr 24 00:55:36 biss systemd[1]: webhook-handler.service: Failed with result 'exit-code'.
+Apr 24 00:55:36 biss systemd[1]: webhook-handler.service: Scheduled restart job, restart counter is at 2.
+Apr 24 00:55:36 biss systemd[1]: Started webhook-handler.service - Webhook Handler.
+Apr 24 00:55:36 biss python[13940]:  * Serving Flask app 'logic'
+Apr 24 00:55:36 biss python[13940]:  * Debug mode: off
+Apr 24 00:55:36 biss python[13940]: Address already in use
+Apr 24 00:55:36 biss python[13940]: Port 8080 is in use by another program. Either identify and stop that program, or start the server with a different port.
+Apr 24 00:55:36 biss systemd[1]: webhook-handler.service: Main process exited, code=exited, status=1/FAILURE
+Apr 24 00:55:36 biss systemd[1]: webhook-handler.service: Failed with result 'exit-code'.
+Apr 24 00:55:37 biss systemd[1]: webhook-handler.service: Scheduled restart job, restart counter is at 3.
+Apr 24 00:55:37 biss systemd[1]: Started webhook-handler.service - Webhook Handler.
+Apr 24 00:55:37 biss python[13943]:  * Serving Flask app 'logic'
+Apr 24 00:55:37 biss python[13943]:  * Debug mode: off
+Apr 24 00:55:37 biss python[13943]: Address already in use
+Apr 24 00:55:37 biss python[13943]: Port 8080 is in use by another program. Either identify and stop that program, or start the server with a different port.
+Apr 24 00:55:37 biss systemd[1]: webhook-handler.service: Main process exited, code=exited, status=1/FAILURE
+Apr 24 00:55:37 biss systemd[1]: webhook-handler.service: Failed with result 'exit-code'.
+Apr 24 00:55:37 biss systemd[1]: webhook-handler.service: Scheduled restart job, restart counter is at 4.
+Apr 24 00:55:37 biss systemd[1]: Started webhook-handler.service - Webhook Handler.
+Apr 24 00:55:37 biss python[13945]:  * Serving Flask app 'logic'
+Apr 24 00:55:37 biss python[13945]:  * Debug mode: off
+Apr 24 00:55:37 biss python[13945]: Address already in use
+Apr 24 00:55:37 biss python[13945]: Port 8080 is in use by another program. Either identify and stop that program, or start the server with a different port.
+Apr 24 00:55:37 biss systemd[1]: webhook-handler.service: Main process exited, code=exited, status=1/FAILURE
+Apr 24 00:55:37 biss systemd[1]: webhook-handler.service: Failed with result 'exit-code'.
+Apr 24 00:55:38 biss systemd[1]: webhook-handler.service: Scheduled restart job, restart counter is at 5.
+Apr 24 00:55:38 biss systemd[1]: webhook-handler.service: Start request repeated too quickly.
+Apr 24 00:55:38 biss systemd[1]: webhook-handler.service: Failed with result 'exit-code'.
+Apr 24 00:55:38 biss systemd[1]: Failed to start webhook-handler.service - Webhook Handler.
+
+
 

@@ -100,3 +100,24 @@ sudo systemctl daemon-reload
 # Проверь, скачивается ли файл полностью
 wget https://github.com/fatedier/frp/releases/download/v0.68.1/frp_0.68.1_linux_amd64.tar.gz
 ls -lh frp_0.68.1_linux_amd64.tar.gz
+
+wget https://github.com/fatedier/frp/releases/download/v0.68.1/frp_0.68.1_linux_amd64.tar.gz
+--2026-04-24 00:03:12--  https://github.com/fatedier/frp/releases/download/v0.68.1/frp_0.68.1_linux_amd64.tar.gz
+Resolving github.com (github.com)... 140.82.121.3
+Connecting to github.com (github.com)|140.82.121.3|:443... connected.
+HTTP request sent, awaiting response... 302 Found
+Location: https://release-assets.githubusercontent.com/github-production-release-asset/48378947/2fd62747-bef7-45c4-9074-25b5fe69025f?sp=r&sv=2018-11-09&sr=b&spr=https&se=2026-04-23T22%3A03%3A50Z&rscd=attachment%3B+filename%3Dfrp_0.68.1_linux_amd64.tar.gz&rsct=application%2Foctet-stream&skoid=96c2d410-5711-43a1-aedd-ab1947aa7ab0&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skt=2026-04-23T21%3A02%3A53Z&ske=2026-04-23T22%3A03%3A50Z&sks=b&skv=2018-11-09&sig=iq94kcce0MUlku2%2Fj9Im%2Fb13KbB%2Fa2qSdfbFenwf1pM%3D&jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmVsZWFzZS1hc3NldHMuZ2l0aHVidXNlcmNvbnRlbnQuY29tIiwia2V5Ijoia2V5MSIsImV4cCI6MTc3Njk3OTk5MiwibmJmIjoxNzc2OTc4MTkyLCJwYXRoIjoicmVsZWFzZWFzc2V0cHJvZHVjdGlvbi5ibG9iLmNvcmUud2luZG93cy5uZXQifQ.k5u669Yn4i88ZOwfze0q2klW9pA-qQ1P8e8fgTkKurw&response-content-disposition=attachment%3B%20filename%3Dfrp_0.68.1_linux_amd64.tar.gz&response-content-type=application%2Foctet-stream [following]
+--2026-04-24 00:03:12--  https://release-assets.githubusercontent.com/github-production-release-asset/48378947/2fd62747-bef7-45c4-9074-25b5fe69025f?sp=r&sv=2018-11-09&sr=b&spr=https&se=2026-04-23T22%3A03%3A50Z&rscd=attachment%3B+filename%3Dfrp_0.68.1_linux_amd64.tar.gz&rsct=application%2Foctet-stream&skoid=96c2d410-5711-43a1-aedd-ab1947aa7ab0&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skt=2026-04-23T21%3A02%3A53Z&ske=2026-04-23T22%3A03%3A50Z&sks=b&skv=2018-11-09&sig=iq94kcce0MUlku2%2Fj9Im%2Fb13KbB%2Fa2qSdfbFenwf1pM%3D&jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmVsZWFzZS1hc3NldHMuZ2l0aHVidXNlcmNvbnRlbnQuY29tIiwia2V5Ijoia2V5MSIsImV4cCI6MTc3Njk3OTk5MiwibmJmIjoxNzc2OTc4MTkyLCJwYXRoIjoicmVsZWFzZWFzc2V0cHJvZHVjdGlvbi5ibG9iLmNvcmUud2luZG93cy5uZXQifQ.k5u669Yn4i88ZOwfze0q2klW9pA-qQ1P8e8fgTkKurw&response-content-disposition=attachment%3B%20filename%3Dfrp_0.68.1_linux_amd64.tar.gz&response-content-type=application%2Foctet-stream
+Resolving release-assets.githubusercontent.com (release-assets.githubusercontent.com)... 185.199.111.133, 185.199.110.133, 185.199.108.133, ...
+Connecting to release-assets.githubusercontent.com (release-assets.githubusercontent.com)|185.199.111.133|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 14101122 (13M) [application/octet-stream]
+Saving to: ‘frp_0.68.1_linux_amd64.tar.gz’
+
+frp_0.68.1_linux_am 100%[===================>]  13.45M  3.00MB/s    in 4.3s    
+
+2026-04-24 00:03:17 (3.11 MB/s) - ‘frp_0.68.1_linux_amd64.tar.gz’ saved [14101122/14101122]
+
+umarbis@biss:~$ ls -lh frp_0.68.1_linux_amd64.tar.gz
+-rw-rw-r-- 1 umarbis umarbis 14M Apr 13 20:37 frp_0.68.1_linux_amd64.tar.gz
+

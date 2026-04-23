@@ -61,3 +61,31 @@ type = "http"
 localPort = 8181
 customDomains = ["app.bisultanov.course.prafdin.ru"]
 EOF
+
+Latest version URL: https://github.com/fatedier/frp/releases/download/v0.68.1/frp_0.68.1_linux_amd64.tar.gz
+frp_0.68.1_linux_amd64/
+frp_0.68.1_linux_amd64/frps
+frp_0.68.1_linux_amd64/frps.toml
+frp_0.68.1_linux_amd64/LICENSE
+frp_0.68.1_linux_amd64/frpc
+
+gzip: stdin: unexpected end of file
+tar: Unexpected EOF in archive
+tar: Unexpected EOF in archive
+tar: Error is not recoverable: exiting now
+cp: cannot stat '/tmp/frp_0.68.1_linux_amd64/frpc.toml': No such file or directory
+○ frpc.service - Frp Client Service
+     Loaded: loaded (/etc/systemd/system/frpc.service; disabled; preset: enable>
+     Active: inactive (dead)
+
+Apr 23 23:31:45 biss systemd[1]: Started frpc.service - Frp Client Service.
+Apr 23 23:31:45 biss (frpc)[9161]: frpc.service: Failed to execute /usr/bin/frp>
+Apr 23 23:31:45 biss systemd[1]: frpc.service: Main process exited, code=exited>
+Apr 23 23:31:45 biss systemd[1]: frpc.service: Failed with result 'exit-code'.
+Apr 23 23:31:50 biss systemd[1]: frpc.service: Scheduled restart job, restart c>
+Apr 23 23:31:50 biss systemd[1]: Started frpc.service - Frp Client Service.
+Apr 23 23:31:50 biss (frpc)[9166]: frpc.service: Failed to execute /usr/bin/frp>
+Apr 23 23:31:50 biss systemd[1]: frpc.service: Main process exited, code=exited>
+Apr 23 23:31:50 biss systemd[1]: frpc.service: Failed with result 'exit-code'.
+Apr 23 23:31:55 biss systemd[1]: Stopped frpc.service - Frp Client Service.
+lines 1-14/14 (END)

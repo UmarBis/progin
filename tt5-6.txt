@@ -3,3 +3,13 @@ sudo visudo
 
 password_123 ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart catty, /usr/bin/tee /etc/catty-app-env
 
+sudo -l
+Matching Defaults entries for umarbis on biss:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin,
+    use_pty
+
+User umarbis may run the following commands on biss:
+    (ALL : ALL) ALL
+    (ALL) NOPASSWD: /usr/bin/systemctl restart catty, /usr/bin/tee
+        /etc/catty-app-env

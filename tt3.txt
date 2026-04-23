@@ -294,3 +294,27 @@ Apr 24 00:55:38 biss systemd[1]: Failed to start webhook-handler.service - Webho
 
 
 ghpTnn1ZrabXGtqTAGfnL7bLHIv8guGh73LtOG2
+
+umarbis@biss:~/catty-reminders-app$ sudo journalctl -u webhook-handler -n 20 --no-pager
+[sudo] password for umarbis: 
+Apr 24 00:55:37 biss systemd[1]: webhook-handler.service: Scheduled restart job, restart counter is at 4.
+Apr 24 00:55:37 biss systemd[1]: Started webhook-handler.service - Webhook Handler.
+Apr 24 00:55:37 biss python[13945]:  * Serving Flask app 'logic'
+Apr 24 00:55:37 biss python[13945]:  * Debug mode: off
+Apr 24 00:55:37 biss python[13945]: Address already in use
+Apr 24 00:55:37 biss python[13945]: Port 8080 is in use by another program. Either identify and stop that program, or start the server with a different port.
+Apr 24 00:55:37 biss systemd[1]: webhook-handler.service: Main process exited, code=exited, status=1/FAILURE
+Apr 24 00:55:37 biss systemd[1]: webhook-handler.service: Failed with result 'exit-code'.
+Apr 24 00:55:38 biss systemd[1]: webhook-handler.service: Scheduled restart job, restart counter is at 5.
+Apr 24 00:55:38 biss systemd[1]: webhook-handler.service: Start request repeated too quickly.
+Apr 24 00:55:38 biss systemd[1]: webhook-handler.service: Failed with result 'exit-code'.
+Apr 24 00:55:38 biss systemd[1]: Failed to start webhook-handler.service - Webhook Handler.
+Apr 24 01:01:06 biss systemd[1]: Started webhook-handler.service - Webhook Handler.
+Apr 24 01:01:06 biss python[14011]:  * Serving Flask app 'logic'
+Apr 24 01:01:06 biss python[14011]:  * Debug mode: off
+Apr 24 01:49:34 biss python[14584]: HEAD is now at 7a632e3 test webhook
+Apr 24 01:49:34 biss python[14585]: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper
+Apr 24 01:49:34 biss python[14585]: sudo: a password is required
+Apr 24 01:49:34 biss sudo[14585]: pam_unix(sudo:auth): conversation failed
+Apr 24 01:49:34 biss sudo[14585]: pam_unix(sudo:auth): auth could not identify password for [umarbis]
+

@@ -1,0 +1,5 @@
+Шаг 5: Права доступа (Sudoers)
+sudo visudo
+
+password_123 ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart catty, /usr/bin/tee /etc/catty-app-env
+

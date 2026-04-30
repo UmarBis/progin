@@ -55,16 +55,18 @@ auth.method = "token"
 auth.token = "devops"
 
 [[proxies]]
-name = "app-simonov"
+name = "app-bisultanov"
 type = "http"
 localPort = 8181
-customDomains = ["app.simonov.course.prafdin.ru"]
+customDomains = ["app.bisultanov.course.prafdin.ru"]
 
 [[proxies]]
-name = "ssh-simonov"
+name = "ssh-bisultanov"
 type = "tcp"
 localPort = 22
-remotePort = 3120
+remotePort = 3136
+
+
 
 
 Сохраняем 

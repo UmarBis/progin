@@ -1,0 +1,41 @@
+Шаг 1:
+
+Переходим в вашу папку проекта и создаем
+cd catty-reminders-app
+git checkout lab1
+git checkout -b lab2
+
+
+Также проверяем, что ваше приложение в рабочем состоянии до начала второй лабораторной (везде должно быть active, running и enable)
+sudo systemctl status catty
+sudo systemctl status frpc
+sudo systemctl status webhook-handler
+
+
+Также проверяем в браузере ваш сайт (должен работать):
+http://app.simonov.course.prafdin.ru/login
+вместо simonov - ваш логин
+
+
+Отключаем сервис вебхука 
+sudo systemctl stop webhook-handler
+sudo systemctl disable webhook-handler
+
+
+Отключаем старый Webhook:
+Зайди в GitHub: Settings -> Webhooks. Найди созданный в Лаб №1 вебхук и сними галочку Active. Это нужно, чтобы старый механизм не мешал новому.
+
+
+Генерируем ключи на виртуалке:
+```# Генерируем ключ (на все вопросы просто жми Enter)
+ssh-keygen -t rsa -C "github-actions" -f ~/.ssh/github_actions -N ""
+
+# Добавляем публичный ключ в список разрешенных на этой машине
+cat ~/.ssh/github_actions.pub >> ~/.ssh/authorized_keys
+
+
+Выводим и копируем приватный ключ (включая BEGIN и END):
+cat ~/.ssh/github_actions
+В GitHub: Settings -> Secrets and variables -> Actions -> New repository secret.
+Имя: SSH_PRIVATE_KEY
+Значение: вставь скопированный ключ.

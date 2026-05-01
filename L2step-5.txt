@@ -56,3 +56,5 @@ To https://github.com/UmarBis/catty-reminders-app.git
 error: failed to push some refs to 'https://github.com/UmarBis/catty-reminders-app.git'
 
 bash ~/catty-reminders-app/run_app.sh ed78859a20678f037e071318dbe8a055b62e855c
+
+bash ~/catty-reminders-app/run_app.sh 1d91d169da9e2d1db16415d99182505812e3ba9c

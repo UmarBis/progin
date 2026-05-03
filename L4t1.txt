@@ -1,0 +1,99 @@
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <iostream>
+#include <csignal>
+#include <cstring>
+#include <sys/wait.h>
+#include <cstdlib>
+
+constexpr int PORT = 60002;
+
+void sigchld_handler(int) {
+    // убираем зомби-процессы
+    while (waitpid(-1, nullptr, WNOHANG) > 0);
+}
+
+void log(const std::string& msg) {
+    std::cout << msg << std::endl;
+}
+
+void handle_client(int client_fd, sockaddr_in client_addr) {
+    srand(time(nullptr) ^ getpid());
+    int secret = rand() % 100 + 1;
+
+    char buffer[128];
+
+    std::string client_ip =
+        std::to_string((int)(unsigned char)client_addr.sin_addr.s_addr) + ":" +
+        std::to_string(ntohs(client_addr.sin_port));
+
+    log("[CHILD] Client connected: " + client_ip);
+
+    while (true) {
+        memset(buffer, 0, sizeof(buffer));
+
+        int n = recv(client_fd, buffer, sizeof(buffer), 0);
+        if (n <= 0) break;
+
+        int guess = atoi(buffer);
+
+        std::string response;
+
+        if (guess < secret) {
+            response = "higher\n";
+        } else if (guess > secret) {
+            response = "lower\n";
+        } else {
+            response = "correct\n";
+            send(client_fd, response.c_str(), response.size(), 0);
+            break;
+        }
+
+        send(client_fd, response.c_str(), response.size(), 0);
+    }
+
+    log("[CHILD] Client disconnected: " + client_ip);
+    close(client_fd);
+    exit(0);
+}
+
+int main() {
+    signal(SIGCHLD, sigchld_handler);
+
+    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+
+    sockaddr_in addr{};
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(PORT);
+    addr.sin_addr.s_addr = INADDR_ANY;
+
+    bind(server_fd, (sockaddr*)&addr, sizeof(addr));
+    listen(server_fd, 10);
+
+    log("[SERVER] Started on port " + std::to_string(PORT));
+
+    while (true) {
+        sockaddr_in client_addr{};
+        socklen_t len = sizeof(client_addr);
+
+        int client_fd = accept(server_fd, (sockaddr*)&client_addr, &len);
+
+        if (client_fd < 0) continue;
+
+        log("[SERVER] New connection accepted");
+
+        pid_t pid = fork();
+
+        if (pid == 0) {
+            // child
+            close(server_fd);
+            handle_client(client_fd, client_addr);
+        } else {
+            // parent
+            close(client_fd);
+        }
+    }
+
+    close(server_fd);
+}

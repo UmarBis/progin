@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <pwd.h>
+#include <grp.h>
+#include <shadow.h>
+#include <unistd.h>
+#include <sys/types.h>
+
+void print_groups(const char *username, uid_t uid) {
+    struct group *grp;
+    int ngroups = 0;
+    gid_t *groups = NULL;
+
+    // Получаем список групп для пользователя
+    if (getgrouplist(username, uid, NULL, &ngroups) == -1) {
+        groups = malloc(ngroups * sizeof(gid_t));
+        if (getgrouplist(username, uid, groups, &ngroups) == 0) {
+            printf("  Группы: ");
+            int is_first = 1;
+            for (int i = 0; i < ngroups; i++) {
+                grp = getgrgid(groups[i]);
+                if (grp) {
+                    if (!is_first) printf(", ");
+                    printf("%s", grp->gr_name);
+
+                    // Проверяем, является ли пользователь администратором группы
+                    char **member;
+                    int is_admin = 0;
+                    for (member = grp->gr_mem; *member; member++) {
+                        if (strcmp(*member, username) == 0) {
+                            is_admin = 1;
+                            break;
+                        }
+                    }
+                    if (is_admin) printf(" (админ)");
+                    is_first = 0;
+                }
+            }
+            printf("\n");
+        }
+        free(groups);
+    }
+}
+
+int main() {
+    struct passwd *pwd;
+    struct spwd *spwd;
+
+    // Переключаемся на реального пользователя для safe операций
+    // Но сначала читаем /etc/shadow благодаря setuid root
+    setuid(getuid()); // после чтения теневых файлов можно отказаться от root
+
+    printf("=== Информация о всех пользователях системы ===\n\n");
+
+    // Открываем файл passwd
+    setpwent();
+    while ((pwd = getpwent()) != NULL) {
+        uid_t uid = pwd->pw_uid;
+
+        // Пропускаем системных пользователей (обычно uid < 1000)
+        // Для учебных целей показываем всех, но можно раскомментировать:
+        // if (uid < 1000) continue;
+
+        printf("Пользователь: %s\n", pwd->pw_name);
+        printf("  UID: %d\n", uid);
+        printf("  Домашний каталог: %s\n", pwd->pw_dir);
+
+        // Получение хэша пароля из /etc/shadow
+        spwd = getspnam(pwd->pw_name);
+        if (spwd && spwd->sp_pwdp) {
+            printf("  Хэш пароля: %s\n", spwd->sp_pwdp);
+        } else {
+            printf("  Хэш пароля: (недоступен или нет shadow entry)\n");
+        }
+
+        // Список групп
+        print_groups(pwd->pw_name, uid);
+
+        printf("\n");
+    }
+    endpwent();
+
+    return 0;
+}

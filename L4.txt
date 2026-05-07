@@ -1,0 +1,226 @@
+# Добавляем удаленный репозиторий курса (если еще не добавлен)
+git remote add upstream https://github.com/prafdin/devops-course-labs.git || true
+git fetch upstream
+
+# ВАЖНО: Мы просто заберем новый код из ветки с мультиконтейнерами
+git checkout upstream/catty-reminders-app-multicontainers -- .
+
+# Скачиавем docker-compose
+sudo apt update
+sudo apt install docker-compose-v2 -y
+
+# 3. Полностью останавливаем и удаляем старые контейнеры от 3-й лабы, чтобы освободить порт 8181
+docker stop catty-container || true
+docker rm catty-container || true
+
+# 4. Удаляем старый скрипт деплоя, который больше не нужен
+git rm run_app.sh 2>/dev/null || true
+
+# 5. Очищаем Docker от старого мусора (освобождаем место на диске)
+docker system prune -a -f
+
+nano config.json
+--------------------------------------
+"db_config": {
+    "host": "db",
+    "port": 3306,
+    "user": "root",
+    "password": "mypass",
+    "database": "catty_reminders"
+  }
+-----------------------------------------
+
+nano Dockerfile
+---------------------------------------------------------------------------
+FROM python:3.12
+WORKDIR /catty-reminders-app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY app/ ./app/
+COPY static/ ./static/
+COPY templates/ ./templates/
+EXPOSE 8181
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8181"]
+-----------------------------------------------------------------------------
+
+nano docker-compose.yaml
+--------------------------------------------------------------------------------
+services:
+  db:
+    image: mariadb:11
+    container_name: catty-db
+    restart: always
+    environment:
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - MARIADB_DATABASE=${MARIADB_DATABASE}
+      - MARIADB_USER=${MARIADB_USER}
+      - MARIADB_PASSWORD=${MARIADB_PASSWORD}
+    ports:
+      - "${HOST_DB_PORT}:${CONTAINER_DB_PORT}"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - catty-network
+
+  catty:
+    image: ${IMAGE}
+    container_name: ${APP_CONTAINER_NAME}
+    restart: always
+    environment:
+      - DEPLOY_REF=${DEPLOY_REF}
+    ports: 
+      - "${HOST_APP_PORT}:${CONTAINER_APP_PORT}"
+    volumes:
+      - ./config.json:/catty-reminders-app/config.json:ro
+    depends_on:
+      - db
+    networks:
+      - catty-network
+
+networks:
+  catty-network:
+    driver: bridge
+
+volumes:
+  db_data:
+-------------------------------------------------------------------------
+
+nano .github/workflows/ci.yaml
+----------------------------------------------------------------------------------
+name: CI
+
+on:
+  push:
+    branches: [ lab4* ]
+  pull_request:
+    branches: [ lab4* ]
+
+jobs:
+  docker-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Hadolint
+        run: docker run --rm -i hadolint/hadolint hadolint - < Dockerfile
+
+  pipeline:
+    needs: docker-lint
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: mariadb:11.8.6-ubi9
+        env:
+          MARIADB_ROOT_PASSWORD: mypass
+          MARIADB_DATABASE: catty_reminders
+        ports: [ 3306:3306 ]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt uvicorn pytest-playwright
+          playwright install --with-deps chromium
+
+      - name: Patch config for CI
+        run: sed -i 's/"host": "db"/"host": "127.0.0.1"/g' config.json
+
+      - name: Start app
+        run: |
+          nohup uvicorn app.main:app --host 127.0.0.1 --port 8181 &
+          sleep 10
+
+      - name: Run tests
+        env: { PYTHONPATH: "${{ github.workspace }}" }
+        run: pytest --junitxml=test_result.xml
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: test_result, path: test_result.xml }
+    
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: pipeline
+    if: github.event_name == 'push'
+    permissions: { contents: read, packages: write }
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with: { registry: ghcr.io, username: "${{ github.actor }}", password: "${{ secrets.GITHUB_TOKEN }}" }
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/catty-reminders-app:latest
+            ghcr.io/${{ github.repository_owner }}/catty-reminders-app:${{ github.sha }}
+------------------------------------------------------------------------------------------------------
+
+nano .github/workflows/deploy.yaml
+------------------------------------------------------------------------------------------------------
+name: Deploy
+on:
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: course.prafdin.ru
+          username: umarbis
+          port: 3136
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            bash -c '
+              set -e
+              cd /home/umarbis/catty-reminders-app
+              OWNER=$(echo "${{ github.repository_owner }}" | tr "[:upper:]" "[:lower:]")
+              
+              export DEPLOY_REF=${{ github.sha }}
+              export IMAGE=ghcr.io/$OWNER/catty-reminders-app:${{ github.sha }}
+              
+              export DB_CONTAINER_NAME=catty-db
+              export APP_CONTAINER_NAME=catty
+              export MARIADB_ROOT_PASSWORD=mypass
+              export MARIADB_USER=umarbis
+              export MARIADB_PASSWORD=mypass
+              export MARIADB_DATABASE=catty_reminders
+              export HOST_DB_PORT=3306
+              export CONTAINER_DB_PORT=3306
+              export HOST_APP_PORT=8181
+              export CONTAINER_APP_PORT=8181
+
+              echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+              docker compose up -d --pull always --remove-orphans --force-recreate 
+            '
+------------------------------------------------------------------------------------------------------------------
+
+IMAGE=ghcr.io/impulse-lab-crypto/catty-reminders-app:latest \
+APP_CONTAINER_NAME=catty-app \
+DB_CONTAINER_NAME=catty-db \
+MARIADB_ROOT_PASSWORD=mypass \
+MARIADB_USER=ilya \
+MARIADB_PASSWORD=mypass \
+MARIADB_DATABASE=catty_reminders \
+HOST_APP_PORT=8181 \
+CONTEINER_APP_PORT=8181 \
+HOST_DB_PORT=3306 \
+CONTEINER_DB_PORT=3306 \
+DEPLOY_REF=manual-pre-run \
+docker compose up -d
+-----------------------------------------------------------------------------------------------------------------
+
+sudo docker ps
+docker exec -i catty-db mariadb -u root -pmypass catty_reminders -e "CREATE TABLE IF NOT EXISTS users (username VARCHAR(255) PRIMARY KEY, password VARCHAR(255)); INSERT IGNORE INTO users VALUES ('tester', 'foobar123');"

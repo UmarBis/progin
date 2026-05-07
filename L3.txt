@@ -107,9 +107,9 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: course.prafdin.ru
-          username: ilya
+          username: umarbis
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 3120
+          port: 3136
           script: |
             IMAGE="ghcr.io/${{ steps.prep.outputs.repo_lower }}:latest"
             CONTAINER_NAME="catty-container"

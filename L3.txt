@@ -133,8 +133,6 @@ jobs:
             docker image prune -f
 ----------------------------------------------------------------------------------------------------------
 
-# ВАЖНО: Бот увидит 404, если мы не запустим контейнер один раз вручную
-# Так как автоматический деплой сработает только ПОСЛЕ создания релиза ботом
-
-docker pull ghcr.io/ваш-логин-в-нижнем-регистре/catty-reminders-app:latest
-docker run -d --name catty-container -p 8181:8181 --restart unless-stopped ghcr.io/ваш-логин-в-нижнем-регистре/catty-reminders-app:latest
+# Замени логин на свой в нижнем регистре
+docker pull ghcr.io/umarbis/catty-reminders-app:latest
+docker run -d --name catty-container -p 8181:8181 --restart unless-stopped ghcr.io/umarbis/catty-reminders-app:latest

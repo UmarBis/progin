@@ -239,4 +239,4 @@ docker exec -i catty-db mariadb -u root -pmypass catty_reminders -e "CREATE TABL
 
 
 
-echo "ТВОЙ_ТОКЕН_GITHUB" | docker login ghcr.io -u UmarBis --password-stdin
+echo "ghpQ01l67imPxAzYasAEjOymD0YOIggc64bDX2J" | docker login ghcr.io -u UmarBis --password-stdin

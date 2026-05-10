@@ -240,3 +240,9 @@ docker exec -i catty-db mariadb -u root -pmypass catty_reminders -e "CREATE TABL
 
 
 echo "ghpQ01l67imPxAzYasAEjOymD0YOIggc64bDX2J" | docker login ghcr.io -u UmarBis --password-stdin
+
+
+umarbis@biss:~/catty-reminders-app$ sudo docker ps
+CONTAINER ID   IMAGE                                        COMMAND                  CREATED          STATUS          PORTS                                         NAMES
+bf8c0b1d5a3d   ghcr.io/umarbis/catty-reminders-app:latest   "uvicorn app.main:ap…"   31 seconds ago   Up 31 seconds   0.0.0.0:8181->8181/tcp, [::]:8181->8181/tcp   catty
+373801485d3d   mariadb:11                                   "docker-entrypoint.s…"   32 seconds ago   Up 31 seconds   0.0.0.0:3306->3306/tcp, [::]:3306->3306/tcp   catty-db

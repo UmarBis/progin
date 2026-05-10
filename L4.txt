@@ -225,9 +225,9 @@ MARIADB_USER=umarbis \
 MARIADB_PASSWORD=mypass \
 MARIADB_DATABASE=catty_reminders \
 HOST_APP_PORT=8181 \
-CONTEINER_APP_PORT=8181 \
+CONTAINER_APP_PORT=8181 \
 HOST_DB_PORT=3306 \
-CONTEINER_DB_PORT=3306 \
+CONTAINER_DB_PORT=3306 \
 DEPLOY_REF=manual-pre-run \
 docker compose up -d
 -----------------------------------------------------------------------------------------------------------------

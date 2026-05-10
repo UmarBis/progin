@@ -1,0 +1,208 @@
+ci.yaml
+-----------------------------------------------------------------------------------
+name: CI
+
+on:
+  push:
+    branches: [ lab4* ]
+  pull_request:
+    branches: [ lab4* ]
+
+jobs:
+  docker-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Hadolint
+        run: docker run --rm -i hadolint/hadolint hadolint - < Dockerfile
+
+  pipeline:
+    needs: docker-lint
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: mariadb:11.8.6-ubi9
+        env:
+          MARIADB_ROOT_PASSWORD: mypass
+          MARIADB_DATABASE: catty_reminders
+        ports: [ 3306:3306 ]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt uvicorn pytest-playwright
+          playwright install --with-deps chromium
+
+      - name: Patch config for CI
+        run: |
+          sed -i 's/"host": "db"/"host": "127.0.0.1"/g' config.json
+
+      - name: Start app
+        run: |
+          nohup uvicorn app.main:app --host 127.0.0.1 --port 8181 &
+          sleep 10
+
+      - name: Run tests
+        env: { PYTHONPATH: "${{ github.workspace }}" }
+        run: pytest --junitxml=test_result.xml
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: test_result, path: test_result.xml }
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: pipeline
+    if: github.event_name == 'push'
+    permissions: { contents: read, packages: write }
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Convert owner to lowercase
+        run: echo "OWNER_LC=${OWNER,,}" >> $GITHUB_ENV
+        env:
+          OWNER: ${{ github.repository_owner }}
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with: { registry: ghcr.io, username: "${{ github.actor }}", password: "${{ secrets.GITHUB_TOKEN }}" }
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          build-args: |
+            DEPLOY_REF=${{ github.sha }}
+          tags: |
+            ghcr.io/${{ env.OWNER_LC }}/catty-reminders-app:latest
+            ghcr.io/${{ env.OWNER_LC }}/catty-reminders-app:${{ github.sha }}
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+deploy.yaml
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+name: Deploy
+on:
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: course.prafdin.ru
+          username: umarbis
+          port: 3136
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            bash -c '
+              set -e
+              cd /home/umarbis/catty-reminders-app
+              OWNER=$(echo "${{ github.repository_owner }}" | tr "[:upper:]" "[:lower:]")
+              export DEPLOY_REF=${{ github.sha }}
+              export IMAGE=ghcr.io/$OWNER/catty-reminders-app:${{ github.sha }}
+              export DB_CONTAINER_NAME=catty-db
+              export APP_CONTAINER_NAME=catty
+              export MARIADB_ROOT_PASSWORD=mypass
+              export MARIADB_USER=umarbis
+              export MARIADB_PASSWORD=mypass
+              export MARIADB_DATABASE=catty_reminders
+              export HOST_DB_PORT=3306
+              export CONTAINER_DB_PORT=3306
+              export HOST_APP_PORT=8181
+              export CONTAINER_APP_PORT=8181
+
+              echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+              docker compose up -d --pull always --remove-orphans --force-recreate 
+            '
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Dockerfile
+------------------------------------------------------------------------------------------------------------------
+FROM python:3.12
+WORKDIR /catty-reminders-app
+
+ARG DEPLOY_REF=unknown
+ENV DEPLOY_REF=${DEPLOY_REF}
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY app/ ./app/
+COPY static/ ./static/
+COPY templates/ ./templates/
+EXPOSE 8181
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8181"]
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+
+config.json
+-------------------------------------------------------------------------------------------------------------------------------------
+{
+  "secret_key": "Cats are awesome!",
+  "users": {
+    "heisenberg": "P@ssw0rd",
+    "tester": "foobar123"
+  },
+  "db_config": {
+    "host": "db",
+    "port": 3306,
+    "user": "root",
+    "password": "mypass",
+    "database": "catty_reminders"
+  }
+}
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+
+docker-compose.yaml
+---------------------------------------------------------------------------------------------------------------------------------------
+services:
+  db:
+    image: mariadb:11
+    container_name: catty-db
+    restart: always
+    environment:
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - MARIADB_DATABASE=${MARIADB_DATABASE}
+      - MARIADB_USER=${MARIADB_USER}
+      - MARIADB_PASSWORD=${MARIADB_PASSWORD}
+    ports:
+      - "${HOST_DB_PORT}:${CONTAINER_DB_PORT}"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - catty-network
+
+  catty-app:
+    image: ${IMAGE}
+    container_name: ${APP_CONTAINER_NAME}
+    restart: always
+    ports:
+      - "${HOST_APP_PORT}:${CONTAINER_APP_PORT}"
+    volumes:
+      - ./config.json:/catty-reminders-app/config.json:ro
+    depends_on:
+      - db
+    networks:
+      - catty-network
+
+networks:
+  catty-network:
+    driver: bridge
+
+volumes:
+  db_data:
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

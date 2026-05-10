@@ -217,11 +217,11 @@ jobs:
             '
 ------------------------------------------------------------------------------------------------------------------
 
-IMAGE=ghcr.io/impulse-lab-crypto/catty-reminders-app:latest \
-APP_CONTAINER_NAME=catty-app \
+IMAGE=ghcr.io/UmarBis/catty-reminders-app:latest \
+APP_CONTAINER_NAME=catty \
 DB_CONTAINER_NAME=catty-db \
 MARIADB_ROOT_PASSWORD=mypass \
-MARIADB_USER=ilya \
+MARIADB_USER=umarbis \
 MARIADB_PASSWORD=mypass \
 MARIADB_DATABASE=catty_reminders \
 HOST_APP_PORT=8181 \

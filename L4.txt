@@ -218,7 +218,7 @@ jobs:
 ------------------------------------------------------------------------------------------------------------------
 
 IMAGE=ghcr.io/umarbis/catty-reminders-app:latest \
-APP_CONTAINER_NAME=catty \
+APP_CONTAINER_NAME=catty-app \
 DB_CONTAINER_NAME=catty-db \
 MARIADB_ROOT_PASSWORD=mypass \
 MARIADB_USER=umarbis \

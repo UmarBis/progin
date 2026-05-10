@@ -234,3 +234,13 @@ docker compose up -d
 
 sudo docker ps
 docker exec -i catty-db mariadb -u root -pmypass catty_reminders -e "CREATE TABLE IF NOT EXISTS users (username VARCHAR(255) PRIMARY KEY, password VARCHAR(255)); INSERT IGNORE INTO users VALUES ('tester', 'foobar123');"
+
+
+
+
+
+umarbis@biss:~/catty-reminders-app$ IMAGE=ghcr.io/impulse-lab-crypto/catty-reminders-app:latest APP_CONTAINER_NAME=catty DB_CONTAINER_NAME=catty-db MARIADB_ROOT_PASSWORD=mypass MARIADB_USER=umarbis MARIADB_PASSWORD=mypass MARIADB_DATABASE=catty_reminders HOST_APP_PORT=8181 CONTAINER_APP_PORT=8181 HOST_DB_PORT=3306 CONTAINER_DB_PORT=3306 DEPLOY_REF=manual-pre-run docker compose up -d
+[+] Running 2/2
+ ✘ catty Error error from registry: denied                                 0.8s 
+ ! db          Interrupted                                                 0.8s 
+Error response from daemon: error from registry: denied

@@ -143,3 +143,4 @@ umarbis@biss:~/catty-reminders-app$ docker ps
 CONTAINER ID   IMAGE                                                                          COMMAND                  CREATED        STATUS                          PORTS                                         NAMES
 f3f3a57425a6   ghcr.io/umarbis/catty-reminders-app:9ab0b1367ea3880d52138770fc01bf9f6d6dc646   "uvicorn app.main:ap…"   12 hours ago   Restarting (1) 18 seconds ago                                                 catty
 777f381303ec   mariadb:11                                                                     "docker-entrypoint.s…"   12 hours ago   Up 4 minutes                    0.0.0.0:3306->3306/tcp, [::]:3306->3306/tcp   catty-db
+

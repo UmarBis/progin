@@ -144,3 +144,11 @@ umarbis@biss:~/catty-reminders-app$ docker run -d --name catty-container -p 8181
 docker: Error response from daemon: Conflict. The container name "/catty-container" is already in use by container "32fcffc26ee85e82a771d61c4930d9faf1e8aa1beef9bb725359e81255efe316". You have to remove (or rename) that container to be able to reuse that name.
 
 Run 'docker run --help' for more information
+
+
+umarbis@biss:~/catty-reminders-app$ docker run -d --name catty-container -p 8181:8181 --restart unless-stopped ghcr.io/umarbis/catty-reminders-app:latest
+aae3e37622e90de3be1c10f2ae65270d63101dce5caedb98753a34420b7f493f
+docker: Error response from daemon: failed to set up container networking: driver failed programming external connectivity on endpoint catty-container (98a669d5af6e2252ffb5ec659d3ea57d98638e8b82f6a6a2a861f87911662b81): Bind for 0.0.0.0:8181 failed: port is already allocated
+
+Run 'docker run --help' for more information
+

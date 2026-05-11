@@ -136,3 +136,11 @@ jobs:
 # Замени логин на свой в нижнем регистре
 docker pull ghcr.io/umarbis/catty-reminders-app:latest
 docker run -d --name catty-container -p 8181:8181 --restart unless-stopped ghcr.io/umarbis/catty-reminders-app:latest
+
+
+umarbis@biss:~/catty-reminders-app$ docker pull ghcr.io/umarbis/catty-reminders-app:latest
+Error response from daemon: error from registry: denied
+umarbis@biss:~/catty-reminders-app$ docker run -d --name catty-container -p 8181:8181 --restart unless-stopped ghcr.io/umarbis/catty-reminders-app:latest
+docker: Error response from daemon: Conflict. The container name "/catty-container" is already in use by container "32fcffc26ee85e82a771d61c4930d9faf1e8aa1beef9bb725359e81255efe316". You have to remove (or rename) that container to be able to reuse that name.
+
+Run 'docker run --help' for more information

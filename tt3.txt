@@ -1,0 +1,322 @@
+Шаг 3: Настройка FRP (Проксирование)
+
+На хосте настроить доступ до прокси сервера frp.
+# Настройка переменных. Актуальные значения узнайте у преподавателя
+PROXY=course.prafdin.ru
+TOKEN=tokentoken
+ID=prafdin
+# Скачать и установить frp как systemd сервисы.
+# Команда запросит пароль текущего пользователя
+wget -qO- https://gist.github.com/lawrenceching/41244a182307940cc15b45e3c4997346/raw/0576ea85d898c965c3137f7c38f9815e1233e0d1/install-frp-as-systemd-service.sh | sudo bash
+
+sudo nano /etc/frp/frpc.toml
+
+
+
+serverAddr = "course.prafdin.ru"
+serverPort = 7000
+auth.method = "token"
+auth.token = "devops" 
+
+[[proxies]]
+name = "hook-bisultanov"
+type = "http"
+localPort = 8080
+customDomains = ["webhook.bisultanov.course.prafdin.ru"]
+
+[[proxies]]
+name = "app-bisultanov"
+type = "http"
+localPort = 8181
+customDomains = ["app.bisultanov.course.prafdin.ru"]
+
+
+
+# Запустите frp client. Команда запросит пароль текущего пользователя
+sudo systemctl start frpc
+# Проверьте корректность настройки
+echo "Адрес для проверки: webhook.$ID.$PROXY"
+wget -qO- https://gist.githubusercontent.com/prafdin/b9ff40c8bc6dc8c55ca7ac911e278ecc/raw/8134f5f34220576bfc8cd205910e1625d66b58cb/main.py | python3
+# Перейдите по адресу для проверки в браузере.
+# Если всё настроено правильно, то в браузере получите ok
+
+
+ДРУГОЙ ВАРИАНТ
+---------------------------------------------------
+sudo tee /etc/frp/frpc.toml > /dev/null << 'EOF'
+serverAddr = "course.prafdin.ru"
+serverPort = 7000
+auth.method = "token"
+auth.token = "devops"
+
+[[proxies]]
+name = "hook-bisultanov"
+type = "http"
+localPort = 8080
+customDomains = ["webhook.bisultanov.course.prafdin.ru"]
+
+[[proxies]]
+name = "app-bisultanov"
+type = "http"
+localPort = 8181
+customDomains = ["app.bisultanov.course.prafdin.ru"]
+EOF
+
+Latest version URL: https://github.com/fatedier/frp/releases/download/v0.68.1/frp_0.68.1_linux_amd64.tar.gz
+frp_0.68.1_linux_amd64/
+frp_0.68.1_linux_amd64/frps
+frp_0.68.1_linux_amd64/frps.toml
+frp_0.68.1_linux_amd64/LICENSE
+frp_0.68.1_linux_amd64/frpc
+
+gzip: stdin: unexpected end of file
+tar: Unexpected EOF in archive
+tar: Unexpected EOF in archive
+tar: Error is not recoverable: exiting now
+cp: cannot stat '/tmp/frp_0.68.1_linux_amd64/frpc.toml': No such file or directory
+○ frpc.service - Frp Client Service
+     Loaded: loaded (/etc/systemd/system/frpc.service; disabled; preset: enable>
+     Active: inactive (dead)
+
+Apr 23 23:31:45 biss systemd[1]: Started frpc.service - Frp Client Service.
+Apr 23 23:31:45 biss (frpc)[9161]: frpc.service: Failed to execute /usr/bin/frp>
+Apr 23 23:31:45 biss systemd[1]: frpc.service: Main process exited, code=exited>
+Apr 23 23:31:45 biss systemd[1]: frpc.service: Failed with result 'exit-code'.
+Apr 23 23:31:50 biss systemd[1]: frpc.service: Scheduled restart job, restart c>
+Apr 23 23:31:50 biss systemd[1]: Started frpc.service - Frp Client Service.
+Apr 23 23:31:50 biss (frpc)[9166]: frpc.service: Failed to execute /usr/bin/frp>
+Apr 23 23:31:50 biss systemd[1]: frpc.service: Main process exited, code=exited>
+Apr 23 23:31:50 biss systemd[1]: frpc.service: Failed with result 'exit-code'.
+Apr 23 23:31:55 biss systemd[1]: Stopped frpc.service - Frp Client Service.
+lines 1-14/14 (END)
+
+sudo systemctl stop frpc
+sudo systemctl disable frpc
+sudo rm /usr/bin/frpc /usr/bin/frps
+sudo rm -rf /etc/frp
+sudo rm -f /etc/systemd/system/frpc.service
+sudo systemctl daemon-reload
+
+# Проверь, скачивается ли файл полностью
+wget https://github.com/fatedier/frp/releases/download/v0.68.1/frp_0.68.1_linux_amd64.tar.gz
+ls -lh frp_0.68.1_linux_amd64.tar.gz
+
+tar -xzf frp_0.68.1_linux_amd64.tar.gz
+cd frp_0.68.1_linux_amd64
+ls -la
+sudo cp frpc /usr/bin/
+
+which frpc
+/usr/bin/frpc --version
+
+sudo mkdir -p /etc/frp
+
+sudo tee /etc/frp/frpc.toml << 'EOF'
+serverAddr = "course.prafdin.ru"
+serverPort = 7000
+auth.method = "token"
+auth.token = "devops"
+
+[[proxies]]
+name = "hook-bisultanov"
+type = "http"
+localPort = 8080
+customDomains = ["webhook.bisultanov.course.prafdin.ru"]
+
+[[proxies]]
+name = "app-bisultanov"
+type = "http"
+localPort = 8181
+customDomains = ["app.bisultanov.course.prafdin.ru"]
+EOF
+
+
+sudo tee /etc/systemd/system/frpc.service << 'EOF'
+[Unit]
+Description=Frp Client Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/frpc -c /etc/frp/frpc.toml
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+
+sudo systemctl daemon-reload
+sudo systemctl start frpc
+sudo systemctl enable frpc
+sudo systemctl status frpc
+запусти сервер там должно быть ок
+
+mkdir ~/webhook-handler && cd ~/webhook-handler
+python3 -m venv venv
+./venv/bin/pip install flask
+
+nano logic.py
+import os
+import subprocess
+import threading
+import logging
+from flask import Flask, request, jsonify
+
+# Пути под твоего пользователя
+REPO_DIR = "/home/password_123/catty-reminders-app"
+ENV_FILE = "/etc/catty-app-env"
+SERVICE = "catty"
+
+app = Flask(__name__)
+logging.basicConfig(filename="/home/password_123/deploy.log", level=logging.INFO)
+
+def run_deploy(sha):
+    try:
+        # 1. Обновляем код
+        subprocess.run(["git", "-C", REPO_DIR, "fetch", "--all"], check=True)
+        subprocess.run(["git", "-C", REPO_DIR, "reset", "--hard", sha], check=True)
+        # 2. Пишем хэш для GitHub Actions
+        with open(ENV_FILE, "w") as f:
+            f.write(f"DEPLOY_REF={sha}\n")
+        # 3. Перезапускаем сайт
+        subprocess.run(["sudo", "systemctl", "restart", SERVICE], check=True)
+        logging.info(f"Success: {sha}")
+    except Exception as e:
+        logging.error(f"Error: {e}")
+
+@app.route('/', methods=['POST'])
+def handle():
+    if request.headers.get('X-GitHub-Event') == 'push':
+        sha = request.json.get('after')
+        if sha and sha != "0000000000000000000000000000000000000000":
+            threading.Thread(target=run_deploy, args=(sha,)).start()
+            return jsonify({"status": "ok"}), 202
+    return jsonify({"status": "ignored"}), 200
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
+
+
+sudo nano /etc/systemd/system/webhook-handler.service
+[Unit]
+Description=Webhook Handler
+After=network.target
+
+[Service]
+User=umarbis
+WorkingDirectory=/home/umarbis/webhook-handler
+ExecStart=/home/umarbis/webhook-handler/venv/bin/python logic.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now webhook-handler
+sudo systemctl status webhook-handler
+
+sudo systemctl status webhook-handler
+× webhook-handler.service - Webhook Handler
+     Loaded: loaded (/etc/systemd/system/webhook-handler.service; enabled; pres>
+     Active: failed (Result: exit-code) since Fri 2026-04-24 00:38:34 +03; 4s a>
+   Duration: 1ms
+    Process: 13246 ExecStart=/home/umarbis/webhook-handler/venv/bin/python logi>
+   Main PID: 13246 (code=exited, status=217/USER)
+        CPU: 893us
+
+Apr 24 00:38:34 biss systemd[1]: webhook-handler.service: Scheduled restart job>
+Apr 24 00:38:34 biss systemd[1]: webhook-handler.service: Start request repeate>
+Apr 24 00:38:34 biss systemd[1]: webhook-handler.service: Failed with result 'e>
+Apr 24 00:38:34 biss systemd[1]: Failed to start webhook-handler.service - Webh>
+lines 1-12/12 (END)
+
+umarbis@biss:~/webhook-handler$ ls -la /home/umarbis/webhook-handler/venv/bin/python
+lrwxrwxrwx 1 umarbis umarbis 7 Apr 24 00:33 /home/umarbis/webhook-handler/venv/bin/python -> python3
+umarbis@biss:~/webhook-handler$ ls -la /home/umarbis/webhook-handler/logic.py
+-rw-rw-r-- 1 umarbis umarbis 1407 Apr 24 00:37 /home/umarbis/webhook-handler/logic.py
+umarbis@biss:~/webhook-handler$ ls -la /home/umarbis/webhook-handler
+total 16
+drwxrwxr-x  3 umarbis umarbis 4096 Apr 24 00:37 .
+drwxr-x--- 21 umarbis umarbis 4096 Apr 24 00:33 ..
+-rw-rw-r--  1 umarbis umarbis 1407 Apr 24 00:37 logic.py
+drwxrwxr-x  5 umarbis umarbis 4096 Apr 24 00:33 venv
+
+
+umarbis@biss:~/webhook-handler$ sudo systemctl status webhook-handler
+× webhook-handler.service - Webhook Handler
+     Loaded: loaded (/etc/systemd/system/webhook-handler.service; enabled; pres>
+     Active: failed (Result: exit-code) since Fri 2026-04-24 00:55:38 +03; 9s a>
+   Duration: 182ms
+    Process: 13945 ExecStart=/home/umarbis/webhook-handler/venv/bin/python logi>
+   Main PID: 13945 (code=exited, status=1/FAILURE)
+        CPU: 181ms
+
+Apr 24 00:55:38 biss systemd[1]: webhook-handler.service: Scheduled restart job>
+Apr 24 00:55:38 biss systemd[1]: webhook-handler.service: Start request repeate>
+Apr 24 00:55:38 biss systemd[1]: webhook-handler.service: Failed with result 'e>
+Apr 24 00:55:38 biss systemd[1]: Failed to start webhook-handler.service - Webh>
+lines 1-12/12 (END)
+
+umarbis@biss:~/webhook-handler$ sudo journalctl -u webhook-handler -n 30 --no-pager 
+Apr 24 00:55:36 biss systemd[1]: webhook-handler.service: Main process exited, code=exited, status=1/FAILURE
+Apr 24 00:55:36 biss systemd[1]: webhook-handler.service: Failed with result 'exit-code'.
+Apr 24 00:55:36 biss systemd[1]: webhook-handler.service: Scheduled restart job, restart counter is at 2.
+Apr 24 00:55:36 biss systemd[1]: Started webhook-handler.service - Webhook Handler.
+Apr 24 00:55:36 biss python[13940]:  * Serving Flask app 'logic'
+Apr 24 00:55:36 biss python[13940]:  * Debug mode: off
+Apr 24 00:55:36 biss python[13940]: Address already in use
+Apr 24 00:55:36 biss python[13940]: Port 8080 is in use by another program. Either identify and stop that program, or start the server with a different port.
+Apr 24 00:55:36 biss systemd[1]: webhook-handler.service: Main process exited, code=exited, status=1/FAILURE
+Apr 24 00:55:36 biss systemd[1]: webhook-handler.service: Failed with result 'exit-code'.
+Apr 24 00:55:37 biss systemd[1]: webhook-handler.service: Scheduled restart job, restart counter is at 3.
+Apr 24 00:55:37 biss systemd[1]: Started webhook-handler.service - Webhook Handler.
+Apr 24 00:55:37 biss python[13943]:  * Serving Flask app 'logic'
+Apr 24 00:55:37 biss python[13943]:  * Debug mode: off
+Apr 24 00:55:37 biss python[13943]: Address already in use
+Apr 24 00:55:37 biss python[13943]: Port 8080 is in use by another program. Either identify and stop that program, or start the server with a different port.
+Apr 24 00:55:37 biss systemd[1]: webhook-handler.service: Main process exited, code=exited, status=1/FAILURE
+Apr 24 00:55:37 biss systemd[1]: webhook-handler.service: Failed with result 'exit-code'.
+Apr 24 00:55:37 biss systemd[1]: webhook-handler.service: Scheduled restart job, restart counter is at 4.
+Apr 24 00:55:37 biss systemd[1]: Started webhook-handler.service - Webhook Handler.
+Apr 24 00:55:37 biss python[13945]:  * Serving Flask app 'logic'
+Apr 24 00:55:37 biss python[13945]:  * Debug mode: off
+Apr 24 00:55:37 biss python[13945]: Address already in use
+Apr 24 00:55:37 biss python[13945]: Port 8080 is in use by another program. Either identify and stop that program, or start the server with a different port.
+Apr 24 00:55:37 biss systemd[1]: webhook-handler.service: Main process exited, code=exited, status=1/FAILURE
+Apr 24 00:55:37 biss systemd[1]: webhook-handler.service: Failed with result 'exit-code'.
+Apr 24 00:55:38 biss systemd[1]: webhook-handler.service: Scheduled restart job, restart counter is at 5.
+Apr 24 00:55:38 biss systemd[1]: webhook-handler.service: Start request repeated too quickly.
+Apr 24 00:55:38 biss systemd[1]: webhook-handler.service: Failed with result 'exit-code'.
+Apr 24 00:55:38 biss systemd[1]: Failed to start webhook-handler.service - Webhook Handler.
+
+
+ghpTnn1ZrabXGtqTAGfnL7bLHIv8guGh73LtOG2
+ghpQ01l67imPxAzYasAEjOymD0YOIggc64bDX2J
+
+
+umarbis@biss:~/catty-reminders-app$ sudo journalctl -u webhook-handler -n 20 --no-pager
+[sudo] password for umarbis: 
+Apr 24 00:55:37 biss systemd[1]: webhook-handler.service: Scheduled restart job, restart counter is at 4.
+Apr 24 00:55:37 biss systemd[1]: Started webhook-handler.service - Webhook Handler.
+Apr 24 00:55:37 biss python[13945]:  * Serving Flask app 'logic'
+Apr 24 00:55:37 biss python[13945]:  * Debug mode: off
+Apr 24 00:55:37 biss python[13945]: Address already in use
+Apr 24 00:55:37 biss python[13945]: Port 8080 is in use by another program. Either identify and stop that program, or start the server with a different port.
+Apr 24 00:55:37 biss systemd[1]: webhook-handler.service: Main process exited, code=exited, status=1/FAILURE
+Apr 24 00:55:37 biss systemd[1]: webhook-handler.service: Failed with result 'exit-code'.
+Apr 24 00:55:38 biss systemd[1]: webhook-handler.service: Scheduled restart job, restart counter is at 5.
+Apr 24 00:55:38 biss systemd[1]: webhook-handler.service: Start request repeated too quickly.
+Apr 24 00:55:38 biss systemd[1]: webhook-handler.service: Failed with result 'exit-code'.
+Apr 24 00:55:38 biss systemd[1]: Failed to start webhook-handler.service - Webhook Handler.
+Apr 24 01:01:06 biss systemd[1]: Started webhook-handler.service - Webhook Handler.
+Apr 24 01:01:06 biss python[14011]:  * Serving Flask app 'logic'
+Apr 24 01:01:06 biss python[14011]:  * Debug mode: off
+Apr 24 01:49:34 biss python[14584]: HEAD is now at 7a632e3 test webhook
+Apr 24 01:49:34 biss python[14585]: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper
+Apr 24 01:49:34 biss python[14585]: sudo: a password is required
+Apr 24 01:49:34 biss sudo[14585]: pam_unix(sudo:auth): conversation failed
+Apr 24 01:49:34 biss sudo[14585]: pam_unix(sudo:auth): auth could not identify password for [umarbis]
+

@@ -1,0 +1,163 @@
+Шаг 1:
+
+Переходим в вашу папку проекта и создаем
+cd catty-reminders-app
+git checkout lab1
+git checkout -b lab2
+
+
+Также проверяем, что ваше приложение в рабочем состоянии до начала второй лабораторной (везде должно быть active, running и enable)
+sudo systemctl status catty
+sudo systemctl status frpc
+sudo systemctl status webhook-handler
+
+
+Также проверяем в браузере ваш сайт (должен работать):
+http://app.simonov.course.prafdin.ru/login
+вместо simonov - ваш логин
+
+
+Отключаем сервис вебхука 
+sudo systemctl stop webhook-handler
+sudo systemctl disable webhook-handler
+
+
+Отключаем старый Webhook:
+Зайди в GitHub: Settings -> Webhooks. Найди созданный в Лаб №1 вебхук и сними галочку Active. Это нужно, чтобы старый механизм не мешал новому.
+
+
+Генерируем ключи на виртуалке:
+```# Генерируем ключ (на все вопросы просто жми Enter)
+ssh-keygen -t rsa -C "github-actions" -f ~/.ssh/github_actions -N ""
+
+# Добавляем публичный ключ в список разрешенных на этой машине
+cat ~/.ssh/github_actions.pub >> ~/.ssh/authorized_keys
+
+
+Выводим и копируем приватный ключ (включая BEGIN и END):
+cat ~/.ssh/github_actions
+В GitHub: Settings -> Secrets and variables -> Actions -> New repository secret.
+Имя: SSH_PRIVATE_KEY
+Значение: вставь скопированный ключ.
+
+Шаг 2:
+Настраиваем FRP на Ubuntu
+
+Заменяем файл конфига
+sudo nano /etc/frp/frpc.toml
+
+
+И меняем (ИСПОЛЬЗУЕМ ВАШИ ЗНАЧЕНИЯ для ID и  remote-port: они указаны в таблице вариантов https://prafdin.github.io/devops-course/2026)
+
+serverAddr = "course.prafdin.ru"
+serverPort = 7000
+auth.method = "token"
+auth.token = "devops"
+
+[[proxies]]
+name = "app-bisultanov"
+type = "http"
+localPort = 8181
+customDomains = ["app.bisultanov.course.prafdin.ru"]
+
+[[proxies]]
+name = "ssh-bisultanov"
+type = "tcp"
+localPort = 22
+remotePort = 3136
+
+
+
+
+Сохраняем 
+Ctrl+O, Enter, Ctrl+X
+
+
+Перезапускаем сервис 
+sudo systemctl restart frpc
+
+
+Проверяем коннект
+
+Вводим в консоль свои значения
+PROXY=course.prafdin.ru
+TOKEN=devops
+ID=simonov
+SSH_PORT=3120
+
+Далее проверяем
+ssh -p $SSH_PORT $USER@$PROXY
+
+
+Если вывод такой
+ilya@ilya-VirtualBox:~/catty-reminders-app$ ssh -p $SSH_PORT $USER@$PROXY
+kex_exchange_identification: Connection closed by remote host
+Connection closed by 80.79.119.196 port 3120
+
+Значит делаем:
+sudo apt update
+sudo apt install openssh-server -y
+sudo systemctl enable --now ssh
+
+
+sudo ufw allow 22/tcp
+sudo ufw allow 2222/tcp
+
+
+Также проверяем на каком порту работает конф
+sudo nano /etc/ssh/sshd_config
+
+
+Находим (если видим что тут 2222, то уже необходимо будет изменить frpc.toml)
+Port 2222#
+AddressFamily any#
+ListenAddress 0.0.0.0#
+ListenAddress ::#
+
+
+Меняем frpc.toml (вместо 22 указываем 2222)
+sudo nano /etc/frp/frpc.toml
+sudo systemctl restart frpc
+sudo systemctl status frpc
+ssh -p 3120 ilya@course.prafdin.ru
+
+
+Снова проверяем проброс
+ssh -p $SSH_PORT $USER@$PROXY
+В моменте попросит пароль - это и есть пароль вашего от вашей виртуалки (юзера)
+
+
+
+Вывод должен быть таким:
+The authenticity of host '[course.prafdin.ru]:3120 ([80.79.119.196]:3120)' can't be established.
+ED25519 key fingerprint is SHA256:EL3akT5swwExQpsLKzpPEbs5+K9u4gBWckcNijXa7F8.
+This host key is known by the following other names/addresses:
+    ~/.ssh/known_hosts:1: [hashed name]
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '[course.prafdin.ru]:3120' (ED25519) to the list of known hosts.
+ilya@course.prafdin.ru's password: 
+Welcome to Ubuntu 22.04.5 LTS (GNU/Linux 6.8.0-106-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+Расширенное поддержание безопасности (ESM) для Applications выключено.
+
+27 обновлений может быть применено немедленно.
+Чтобы просмотреть дополнительные обновления выполните: apt list --upgradable
+
+33 дополнительных обновления безопасности могут быть применены с помощью ESM Apps.
+Подробнее о включении службы ESM Apps at https://ubuntu.com/esm
+
+New release '24.04.4 LTS' available.
+Run 'do-release-upgrade' to upgrade to it.
+
+Last login: Sun Mar 29 15:32:28 2026 from 127.0.0.1
+ilya@ilya-VirtualBox:~$
+
+GitHub Actions не умеет вводить пароль. Он заходит только по SSH-ключам.
+Так что проверяем, что мы добавил ключ в разрешенные
+cat ~/.ssh/authorized_keys
+
+Если там есть ключ - отлично

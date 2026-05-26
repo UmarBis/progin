@@ -1,0 +1,58 @@
+Шаг 5: Права доступа (Sudoers)
+sudo visudo
+
+password_123 ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart catty, /usr/bin/tee /etc/catty-app-env
+
+sudo -l
+Matching Defaults entries for umarbis on biss:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin,
+    use_pty
+
+User umarbis may run the following commands on biss:
+    (ALL : ALL) ALL
+    (ALL) NOPASSWD: /usr/bin/systemctl restart catty, /usr/bin/tee
+        /etc/catty-app-env
+
+curl -X POST http://webhook.baranova.course.prafdin.ru -H "X-GitHub-Event: push" -d '{"after":"test"}'
+umarbis@biss:~/catty-reminders-app$ curl -X POST http://webhook.bisultanov.course.prafdin.ru -H "X-GitHub-Event: push" -d '{"after":"test"}'
+<!doctype html>
+<html lang=en>
+<title>415 Unsupported Media Type</title>
+<h1>Unsupported Media Type</h1>
+<p>Did not attempt to load JSON data because the request Content-Type was not &#39;application/json&#39;.</p>
+
+curl -X POST http://webhook.baranova.course.prafdin.ru \
+  -H "Content-Type: application/json" \
+  -H "X-GitHub-Event: push" \
+  -d '{"after":"test"}'
+
+umarbis@biss:~/catty-reminders-app$ git push origin lab1
+Username for 'https://github.com': UmarBis
+Password for 'https://UmarBis@github.com': 
+Enumerating objects: 3602, done.
+Counting objects: 100% (3602/3602), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3516/3516), done.
+Writing objects: 100% (3597/3597), 62.86 MiB | 6.24 MiB/s, done.
+Total 3597 (delta 403), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (403/403), completed with 4 local objects.
+remote: error: Trace: d772cc3ced9e72735d24ce45a627d8f8c5609f05f24cc5b2f997c93ba53bb6aa
+remote: error: See https://gh.io/lfs for more information.
+remote: error: File venv/lib/python3.12/site-packages/playwright/driver/node is 115.55 MB; this exceeds GitHub's file size limit of 100.00 MB
+remote: error: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.
+To https://github.com/UmarBis/catty-reminders-app.git
+ ! [remote rejected] lab1 -> lab1 (pre-receive hook declined)
+error: failed to push some refs to 'https://github.com/UmarBis/catty-reminders-app.git'
+
+
+cd ~/catty-reminders-app
+echo "venv/" >> .gitignore
+git rm -r --cached venv
+git add .gitignore
+git commit -m "Remove venv from git"
+git push origin lab1
+
+
+cd ~/catty-reminders-app
+git filter-branch --force --index-filter "git rm --cached --ignore-unmatch -r venv" --prune-empty --tag-name-filter cat -- --all

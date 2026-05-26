@@ -1,0 +1,146 @@
+Dockerfile
+-------------------------------
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Копируем зависимости
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Копируем код и статику
+COPY app/ ./app/
+COPY static/ ./static/
+COPY templates/ ./templates/
+COPY config.json .
+
+# Открываем порт 8181
+EXPOSE 8181
+
+# Запуск на 0.0.0.0 обязателен для работы внутри контейнера
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8181"]
+--------------------------------------------------------------------------
+
+
+ci.yaml
+----------------------------------------------------------------------
+name: CI
+on:
+  push:
+    branches: [ lab3* ]
+  pull_request:
+    branches: [ lab3* ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: |
+          pip install -r requirements.txt pytest-playwright
+          playwright install --with-deps chromium
+      - name: Start App
+        run: |
+          nohup uvicorn app.main:app --host 127.0.0.1 --port 8181 &
+          sleep 5
+      - name: Run tests
+        env:
+          PYTHONPATH: ${{ github.workspace }} # Чтобы Python видел папку testlib
+        run: pytest --junitxml=test_result.xml
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test_result
+          path: test_result.xml
+
+  build-and-push:
+    needs: tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Image Name
+        id: prep
+        # Переводим имя репозитория в нижний регистр (Docker не ест заглавные)
+        run: echo "repo_lower=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ steps.prep.outputs.repo_lower }}:latest
+            ghcr.io/${{ steps.prep.outputs.repo_lower }}:${{ github.sha }}
+------------------------------------------------------------------------------
+
+deploy.yaml
+-------------------------------------------------------------------------------------------
+name: Deploy
+on:
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Image Name
+        id: prep
+        run: echo "repo_lower=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+      - name: Remote Docker Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: course.prafdin.ru
+          username: umarbis
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 3136
+          script: |
+            IMAGE="ghcr.io/${{ steps.prep.outputs.repo_lower }}:latest"
+            CONTAINER_NAME="catty-container"
+            
+            echo "Logging in to GHCR..."
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            echo "Pulling image: $IMAGE"
+            docker pull $IMAGE
+            
+            docker stop $CONTAINER_NAME || true
+            docker rm $CONTAINER_NAME || true
+            
+            docker run -d \
+              --name $CONTAINER_NAME \
+              -p 8181:8181 \
+              --restart unless-stopped \
+              -e DEPLOY_REF=${{ github.sha }} \
+              $IMAGE
+            
+            docker image prune -f
+----------------------------------------------------------------------------------------------------------
+
+# Замени логин на свой в нижнем регистре
+docker pull ghcr.io/umarbis/catty-reminders-app:latest
+docker run -d --name catty-container -p 8181:8181 --restart unless-stopped ghcr.io/umarbis/catty-reminders-app:latest
+
+
+
+umarbis@biss:~/catty-reminders-app$ docker ps
+CONTAINER ID   IMAGE                                                                          COMMAND                  CREATED        STATUS                          PORTS                                         NAMES
+f3f3a57425a6   ghcr.io/umarbis/catty-reminders-app:9ab0b1367ea3880d52138770fc01bf9f6d6dc646   "uvicorn app.main:ap…"   12 hours ago   Restarting (1) 18 seconds ago                                                 catty
+777f381303ec   mariadb:11                                                                     "docker-entrypoint.s…"   12 hours ago   Up 4 minutes                    0.0.0.0:3306->3306/tcp, [::]:3306->3306/tcp   catty-db
+

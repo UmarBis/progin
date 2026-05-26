@@ -1,0 +1,30 @@
+Шаг 2: Настройка основного приложения (Catty)
+cd ~
+git clone -b lab1 https://github.com/UmarBis/catty-reminders-app.git
+cd ~/catty-reminders-app
+
+python3 -m venv venv
+./venv/bin/pip install -r requirements.txt
+
+sudo touch /etc/catty-app-env
+sudo chmod 666 /etc/catty-app-env
+echo "DEPLOY_REF=initial" > /etc/catty-app-env
+
+sudo nano /etc/systemd/system/catty.service
+
+
+[Unit]
+Description=Catty Reminders Application
+After=network.target
+
+[Service]
+User=umarbis
+WorkingDirectory=/home/umarbis/catty-reminders-app
+EnvironmentFile=/etc/catty-app-env
+ExecStart=/home/umarbis/catty-reminders-app/venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8181
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+sudo systemctl enable --now catty
